@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import './UploadForm.css'
 
 interface UploadFormProps {
   onAnalysisComplete: (result: any) => void
@@ -19,7 +20,6 @@ function UploadForm({ onAnalysisComplete }: UploadFormProps) {
     setError('')
 
     try {
-      // Step 1: submit the contract
       const submitRes = await fetch('http://localhost:8080/api/contracts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -27,7 +27,6 @@ function UploadForm({ onAnalysisComplete }: UploadFormProps) {
       })
       const contract = await submitRes.json()
 
-      // Step 2: analyze it
       const analyzeRes = await fetch(`http://localhost:8080/api/contracts/${contract.id}/analyze`, {
         method: 'POST'
       })
@@ -42,30 +41,16 @@ function UploadForm({ onAnalysisComplete }: UploadFormProps) {
   }
 
   return (
-    <div>
+    <div className="upload-form">
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste contract text here..."
-        style={{ width: '100%', height: '200px', padding: '10px', fontSize: '14px' }}
       />
-      <button
-        onClick={handleSubmit}
-        disabled={loading}
-        style={{
-          padding: '10px 24px',
-          fontSize: '16px',
-          backgroundColor: '#2563eb',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          marginTop: '10px'
-        }}
-      >
+      <button onClick={handleSubmit} disabled={loading}>
         {loading ? 'Analyzing...' : 'Analyze Contract'}
       </button>
-      {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+      {error && <p className="error">{error}</p>}
     </div>
   )
 }
