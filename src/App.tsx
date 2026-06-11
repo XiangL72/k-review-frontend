@@ -1,25 +1,75 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import UploadForm from './components/UploadForm'
 import ResultsDisplay from './components/ResultsDisplay'
 import ContractHistory from './components/ContractHistory'
 import './App.css'
 
+type JobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETE' | 'FAILED'
+
+interface Clause {
+  id: number
+  type: string
+  text: string
+  riskLevel: string
+}
+
+interface AnalysisResult {
+  id: number
+  summary: string
+  overallRiskScore: number
+  clauses: Clause[]
+}
+
 function App() {
-  const [result, setResult] = useState<any>(null)
+  const [jobId, setJobId] = useState<string | null>(null)
+  const [contractId, setContractId] = useState<number | null>(null)
+  const [status, setStatus] = useState<JobStatus | null>(null)
+  const [result, setResult] = useState<AnalysisResult | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
-  const handleAnalysisComplete = (analysis: any) => {
-    setResult(analysis)
-    setRefreshKey(prev => prev + 1)
+  const handleJobSubmitted = (newJobId: string, newContractId: number) => {
+    setJobId(newJobId)
+    setContractId(newContractId)
+    setStatus('PENDING')
+    setResult(null)
   }
+
+  useEffect(() => {
+    if (!jobId || !contractId) return
+    if (status === 'COMPLETE' || status === 'FAILED') return
+
+    const intervalId = setInterval(async () => {
+      try {
+        const statusRes = await fetch(`http://localhost:8080/api/jobs/${jobId}/status`)
+        if (!statusRes.ok) return
+
+        const { status: newStatus } = await statusRes.json()
+        setStatus(newStatus)
+
+        if (newStatus === 'COMPLETE') {
+          const resultRes = await fetch(`http://localhost:8080/api/contracts/${contractId}/analysis`)
+          if (resultRes.ok) {
+            const analysis = await resultRes.json()
+            setResult(analysis)
+            setRefreshKey(prev => prev + 1)
+          }
+        }
+      } catch (err) {
+        console.error('Polling error:', err)
+      }
+    }, 2000)
+
+    return () => clearInterval(intervalId)
+  }, [jobId, contractId, status])
 
   const handleSelectContract = async (id: number) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/contracts/${id}/analyze`, {
-        method: 'POST'
-      })
-      const analysis = await res.json()
-      setResult(analysis)
+      const res = await fetch(`http://localhost:8080/api/contracts/${id}/analysis`)
+      if (res.ok) {
+        const analysis = await res.json()
+        setResult(analysis)
+        setStatus('COMPLETE')
+      }
     } catch (err) {
       console.error('Failed to load analysis:', err)
     }
@@ -29,8 +79,8 @@ function App() {
     <div className="app">
       <h1>K-Review</h1>
       <p>AI-powered contract analysis platform</p>
-      <UploadForm onAnalysisComplete={handleAnalysisComplete} />
-      {result && <ResultsDisplay result={result} />}
+      <UploadForm onJobSubmitted={handleJobSubmitted} />
+      <ResultsDisplay status={status} result={result} />
       <ContractHistory key={refreshKey} onSelectContract={handleSelectContract} />
     </div>
   )

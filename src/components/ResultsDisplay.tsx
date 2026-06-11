@@ -14,33 +14,64 @@ interface AnalysisResult {
   clauses: Clause[]
 }
 
+type JobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETE' | 'FAILED'
+
 interface ResultsDisplayProps {
-  result: AnalysisResult
+  status: JobStatus | null
+  result: AnalysisResult | null
 }
 
-function ResultsDisplay({ result }: ResultsDisplayProps) {
-  return (
-    <div className="results">
-      <div className="summary-card">
-        <strong>Summary</strong>
-        <p>{result.summary}</p>
-        <div className="risk-score">
-          Risk Score: {result.overallRiskScore}/10
+function ResultsDisplay({ status, result }: ResultsDisplayProps) {
+  if (status === null) {
+    return null
+  }
+
+  if (status === 'PENDING' || status === 'PROCESSING') {
+    return (
+      <div className="results">
+        <div className="summary-card">
+          <p>⏳ Analyzing your contract...</p>
         </div>
       </div>
+    )
+  }
 
-      <h3>Extracted Clauses</h3>
-
-      {result.clauses.length === 0 && <p>No clauses detected.</p>}
-
-      {result.clauses.map((clause) => (
-        <div key={clause.id} className={`clause-card risk-${clause.riskLevel}`}>
-          <div className="clause-header">{clause.type} — {clause.riskLevel}</div>
-          <div className="clause-text">{clause.text}</div>
+  if (status === 'FAILED') {
+    return (
+      <div className="results">
+        <div className="summary-card">
+          <p>❌ Analysis failed. Please try again.</p>
         </div>
-      ))}
-    </div>
-  )
+      </div>
+    )
+  }
+
+  if (status === 'COMPLETE' && result) {
+    return (
+      <div className="results">
+        <div className="summary-card">
+          <strong>Summary</strong>
+          <p>{result.summary}</p>
+          <div className="risk-score">
+            Risk Score: {result.overallRiskScore}/10
+          </div>
+        </div>
+
+        <h3>Extracted Clauses</h3>
+
+        {result.clauses.length === 0 && <p>No clauses detected.</p>}
+
+        {result.clauses.map((clause) => (
+          <div key={clause.id} className={`clause-card risk-${clause.riskLevel}`}>
+            <div className="clause-header">{clause.type} — {clause.riskLevel}</div>
+            <div className="clause-text">{clause.text}</div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  return null
 }
 
 export default ResultsDisplay

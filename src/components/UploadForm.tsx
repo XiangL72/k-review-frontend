@@ -2,12 +2,12 @@ import { useState } from 'react'
 import './UploadForm.css'
 
 interface UploadFormProps {
-  onAnalysisComplete: (result: any) => void
+  onJobSubmitted: (jobId: string, contractId: number) => void
 }
 
-function UploadForm({ onAnalysisComplete }: UploadFormProps) {
+function UploadForm({ onJobSubmitted }: UploadFormProps) {
   const [text, setText] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   const handleSubmit = async () => {
@@ -16,7 +16,7 @@ function UploadForm({ onAnalysisComplete }: UploadFormProps) {
       return
     }
 
-    setLoading(true)
+    setSubmitting(true)
     setError('')
 
     try {
@@ -30,13 +30,18 @@ function UploadForm({ onAnalysisComplete }: UploadFormProps) {
       const analyzeRes = await fetch(`http://localhost:8080/api/contracts/${contract.id}/analyze`, {
         method: 'POST'
       })
-      const analysis = await analyzeRes.json()
 
-      onAnalysisComplete(analysis)
+      if (!analyzeRes.ok) {
+        throw new Error(`Analyze failed: ${analyzeRes.status}`)
+      }
+
+      const { jobId } = await analyzeRes.json()
+      onJobSubmitted(jobId, contract.id)
+      setText('')
     } catch (err) {
       setError('Error connecting to server. Make sure the backend is running.')
     } finally {
-      setLoading(false)
+      setSubmitting(false)
     }
   }
 
@@ -46,9 +51,10 @@ function UploadForm({ onAnalysisComplete }: UploadFormProps) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste contract text here..."
+        disabled={submitting}
       />
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Analyzing...' : 'Analyze Contract'}
+      <button onClick={handleSubmit} disabled={submitting}>
+        {submitting ? 'Submitting...' : 'Analyze Contract'}
       </button>
       {error && <p className="error">{error}</p>}
     </div>
