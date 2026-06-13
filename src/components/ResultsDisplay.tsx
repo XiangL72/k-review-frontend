@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import './ResultsDisplay.css'
 
 interface Clause {
@@ -19,9 +20,26 @@ type JobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETE' | 'FAILED'
 interface ResultsDisplayProps {
   status: JobStatus | null
   result: AnalysisResult | null
+  onReset: () => void
 }
 
-function ResultsDisplay({ status, result }: ResultsDisplayProps) {
+function ResultsDisplay({ status, result, onReset }: ResultsDisplayProps) {
+  const [elapsed, setElapsed] = useState(0)
+
+  useEffect(() => {
+    if (status !== 'PENDING' && status !== 'PROCESSING') {
+      setElapsed(0)
+      return
+    }
+
+    setElapsed(0)
+    const intervalId = setInterval(() => {
+      setElapsed(prev => prev + 1)
+    }, 1000)
+
+    return () => clearInterval(intervalId)
+  }, [status])
+
   if (status === null) {
     return null
   }
@@ -30,7 +48,10 @@ function ResultsDisplay({ status, result }: ResultsDisplayProps) {
     return (
       <div className="results">
         <div className="summary-card">
-          <p>⏳ Analyzing your contract...</p>
+          <div className="loading-row">
+            <div className="spinner" />
+            <span>Analyzing your contract — this usually takes 5-15 seconds. ({elapsed}s)</span>
+          </div>
         </div>
       </div>
     )
@@ -39,8 +60,12 @@ function ResultsDisplay({ status, result }: ResultsDisplayProps) {
   if (status === 'FAILED') {
     return (
       <div className="results">
-        <div className="summary-card">
-          <p>❌ Analysis failed. Please try again.</p>
+        <div className="summary-card error-card">
+          <p>❌ Something went wrong analyzing your contract.</p>
+          <p className="error-help">This usually means the AI service was busy or your contract format was unusual. Please try again.</p>
+          <button className="try-again-btn" onClick={onReset}>
+            Try Again
+          </button>
         </div>
       </div>
     )

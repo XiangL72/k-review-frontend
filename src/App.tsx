@@ -33,6 +33,13 @@ function App() {
     setStatus('PENDING')
     setResult(null)
   }
+  const handleReset = () => {
+    setJobId(null)
+    setContractId(null)
+    setStatus(null)
+    setResult(null)
+}
+
 
   useEffect(() => {
     if (!jobId || !contractId) return
@@ -45,6 +52,7 @@ function App() {
 
         const { status: newStatus } = await statusRes.json()
         setStatus(newStatus)
+
 
         if (newStatus === 'COMPLETE') {
           const resultRes = await fetch(`http://localhost:8080/api/contracts/${contractId}/analysis`)
@@ -80,8 +88,12 @@ function App() {
       <h1>K-Review</h1>
       <p>AI-powered contract analysis platform</p>
       <UploadForm onJobSubmitted={handleJobSubmitted} />
-      <ResultsDisplay status={status} result={result} />
-      <ContractHistory key={refreshKey} onSelectContract={handleSelectContract} />
+      <ResultsDisplay status={status} result={result} onReset={handleReset} />
+      <ContractHistory 
+  key={refreshKey} 
+  onSelectContract={handleSelectContract} 
+  disabled={status === 'PENDING' || status === 'PROCESSING'}
+/>
     </div>
   )
 }

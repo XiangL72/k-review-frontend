@@ -9,9 +9,10 @@ interface Contract {
 
 interface ContractHistoryProps {
   onSelectContract: (id: number) => void
+  disabled: boolean
 }
 
-function ContractHistory({ onSelectContract }: ContractHistoryProps) {
+function ContractHistory({ onSelectContract, disabled }: ContractHistoryProps) {
   const [contracts, setContracts] = useState<Contract[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -34,8 +35,11 @@ function ContractHistory({ onSelectContract }: ContractHistoryProps) {
       {contracts.map(contract => (
         <div
           key={contract.id}
-          className="history-card"
-          onClick={() => onSelectContract(contract.id)}
+          className={`history-card ${disabled ? 'history-card-disabled' : ''}`}
+          onClick={() => {
+            if (disabled) return
+            onSelectContract(contract.id)
+          }}
         >
           <div className="history-preview">
             {contract.content.substring(0, 120)}...
