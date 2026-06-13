@@ -99,9 +99,3 @@
 .try-again-btn:hover {
   background: #1d4ed8;
 }
-
-.history-card-disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  pointer-events: none;
-}
