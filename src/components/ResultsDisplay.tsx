@@ -8,11 +8,18 @@ interface Clause {
   riskLevel: string
 }
 
+interface Contract {
+  id: number
+  content: string
+  createdAt: string
+}
+
 interface AnalysisResult {
   id: number
   summary: string
   overallRiskScore: number
   clauses: Clause[]
+  contract: Contract
 }
 
 type JobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETE' | 'FAILED'
@@ -25,6 +32,7 @@ interface ResultsDisplayProps {
 
 function ResultsDisplay({ status, result, onReset }: ResultsDisplayProps) {
   const [elapsed, setElapsed] = useState(0)
+  const [contractExpanded, setContractExpanded] = useState(false)
 
   useEffect(() => {
     if (status !== 'PENDING' && status !== 'PROCESSING') {
@@ -72,8 +80,29 @@ function ResultsDisplay({ status, result, onReset }: ResultsDisplayProps) {
   }
 
   if (status === 'COMPLETE' && result) {
+    const preview = result.contract.content.substring(0, 300)
+    const isLong = result.contract.content.length > 300
+    const displayedText = contractExpanded || !isLong
+      ? result.contract.content
+      : preview + '...'
+
     return (
       <div className="results">
+        <div className="contract-card">
+          <div className="contract-header">
+            <strong>Original Contract</strong>
+            {isLong && (
+              <button
+                className="toggle-btn"
+                onClick={() => setContractExpanded(!contractExpanded)}
+              >
+                {contractExpanded ? 'Show less' : 'Show full text'}
+              </button>
+            )}
+          </div>
+          <p className="contract-text">{displayedText}</p>
+        </div>
+
         <div className="summary-card">
           <strong>Summary</strong>
           <p>{result.summary}</p>

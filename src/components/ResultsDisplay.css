@@ -99,3 +99,40 @@
 .try-again-btn:hover {
   background: #1d4ed8;
 }
+
+.contract-card {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.contract-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.contract-text {
+  color: #475569;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-size: 14px;
+  margin: 0;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.toggle-btn:hover {
+  background: #eff6ff;
+}
