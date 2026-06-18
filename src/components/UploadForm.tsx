@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './UploadForm.css'
+import { API_BASE_URL } from '../config/api'
 
 interface UploadFormProps {
   onJobSubmitted: (jobId: string, contractId: number) => void
@@ -20,14 +21,14 @@ function UploadForm({ onJobSubmitted }: UploadFormProps) {
     setError('')
 
     try {
-      const submitRes = await fetch('http://localhost:8080/api/contracts', {
+      const submitRes = await fetch(`${API_BASE_URL}/api/contracts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: text })
       })
       const contract = await submitRes.json()
 
-      const analyzeRes = await fetch(`http://localhost:8080/api/contracts/${contract.id}/analyze`, {
+      const analyzeRes = await fetch(`${API_BASE_URL}/api/contracts/${contract.id}/analyze`, {
         method: 'POST'
       })
 

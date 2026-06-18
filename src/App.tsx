@@ -5,6 +5,7 @@ import ContractHistory from './components/ContractHistory'
 import SearchBar from './components/SearchBar'
 import SearchResults from './components/SearchResults'
 import './App.css'
+import { API_BASE_URL } from './config/api'
 
 type JobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETE' | 'FAILED'
 
@@ -58,14 +59,14 @@ function App() {
 
     const intervalId = setInterval(async () => {
       try {
-        const statusRes = await fetch(`http://localhost:8080/api/jobs/${jobId}/status`)
+        const statusRes = await fetch(`${API_BASE_URL}/api/jobs/${jobId}/status`)
         if (!statusRes.ok) return
 
         const { status: newStatus } = await statusRes.json()
         setStatus(newStatus)
 
         if (newStatus === 'COMPLETE') {
-          const resultRes = await fetch(`http://localhost:8080/api/contracts/${contractId}/analysis`)
+          const resultRes = await fetch(`${API_BASE_URL}/api/contracts/${contractId}/analysis`)
           if (resultRes.ok) {
             const analysis = await resultRes.json()
             setResult(analysis)
@@ -82,7 +83,7 @@ function App() {
 
   const handleSelectContract = async (id: number) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/contracts/${id}/analysis`)
+      const res = await fetch(`${API_BASE_URL}/api/contracts/${id}/analysis`)
       if (res.ok) {
         const analysis = await res.json()
         setResult(analysis)
@@ -97,7 +98,7 @@ function App() {
   const handleSearch = async (query: string) => {
     setSearching(true)
     try {
-      const res = await fetch(`http://localhost:8080/api/contracts/search?q=${encodeURIComponent(query)}`)
+      const res = await fetch(`${API_BASE_URL}/api/contracts/search?q=${encodeURIComponent(query)}`)
       if (res.ok) {
         const results: Contract[] = await res.json()
         setSearchResults(results)

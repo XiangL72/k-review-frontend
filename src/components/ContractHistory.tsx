@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './ContractHistory.css'
+import { API_BASE_URL } from '../config/api'
 
 interface Contract {
   id: number
@@ -17,7 +18,7 @@ function ContractHistory({ onSelectContract, disabled }: ContractHistoryProps) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/contracts/analyzed')
+    fetch(`${API_BASE_URL}/api/contracts/analyzed`)
       .then(res => res.json())
       .then(data => {
         setContracts(data)
