@@ -12,6 +12,9 @@ interface Contract {
   id: number
   content: string
   createdAt: string
+  contractType: string | null
+  partyRole: string | null
+  partyRoleCustomLabel: string | null
 }
 
 interface AnalysisResult {
@@ -55,10 +58,13 @@ function ResultsDisplay({ status, result, onReset }: ResultsDisplayProps) {
   if (status === 'PENDING' || status === 'PROCESSING') {
     return (
       <div className="results">
-        <div className="summary-card">
-          <div className="loading-row">
-            <div className="spinner" />
-            <span>Analyzing your contract — this usually takes 5-15 seconds. ({elapsed}s)</span>
+        <div className="panel loading-panel">
+          <div className="spinner" />
+          <div>
+            <div className="loading-title">Analyzing your contract</div>
+            <div className="loading-meta">
+              This usually takes 5–15 seconds · {elapsed}s elapsed
+            </div>
           </div>
         </div>
       </div>
@@ -68,11 +74,14 @@ function ResultsDisplay({ status, result, onReset }: ResultsDisplayProps) {
   if (status === 'FAILED') {
     return (
       <div className="results">
-        <div className="summary-card error-card">
-          <p>❌ Something went wrong analyzing your contract.</p>
-          <p className="error-help">This usually means the AI service was busy or your contract format was unusual. Please try again.</p>
-          <button className="try-again-btn" onClick={onReset}>
-            Try Again
+        <div className="panel error-panel">
+          <div className="panel-label">Analysis failed</div>
+          <p className="error-help">
+            This usually means the AI service was busy or your contract format was
+            unusual. Please try again.
+          </p>
+          <button className="btn btn-outline" onClick={onReset}>
+            Try again
           </button>
         </div>
       </div>
@@ -88,12 +97,33 @@ function ResultsDisplay({ status, result, onReset }: ResultsDisplayProps) {
 
     return (
       <div className="results">
-        <div className="contract-card">
-          <div className="contract-header">
-            <strong>Original Contract</strong>
+        <div className="results-head">
+          <h2>Analysis</h2>
+          <button className="btn btn-ghost" onClick={onReset}>
+            New analysis
+          </button>
+        </div>
+
+        <div className="panel summary-panel">
+          <div className="summary-main">
+            <div className="panel-label">Summary</div>
+            <p className="summary-text">{result.summary}</p>
+          </div>
+          <div className="score">
+            <div className="panel-label">Risk score</div>
+            <div className="score-value">
+              {result.overallRiskScore}
+              <span className="score-total">/10</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="panel contract-panel">
+          <div className="panel-head">
+            <div className="panel-label">Original contract</div>
             {isLong && (
               <button
-                className="toggle-btn"
+                className="btn btn-ghost btn-sm"
                 onClick={() => setContractExpanded(!contractExpanded)}
               >
                 {contractExpanded ? 'Show less' : 'Show full text'}
@@ -103,24 +133,30 @@ function ResultsDisplay({ status, result, onReset }: ResultsDisplayProps) {
           <p className="contract-text">{displayedText}</p>
         </div>
 
-        <div className="summary-card">
-          <strong>Summary</strong>
-          <p>{result.summary}</p>
-          <div className="risk-score">
-            Risk Score: {result.overallRiskScore}/10
-          </div>
+        <div className="results-head">
+          <h3>
+            Extracted clauses <span className="count">{result.clauses.length}</span>
+          </h3>
         </div>
 
-        <h3>Extracted Clauses</h3>
+        {result.clauses.length === 0 && (
+          <p className="muted">No clauses detected.</p>
+        )}
 
-        {result.clauses.length === 0 && <p>No clauses detected.</p>}
-
-        {result.clauses.map((clause) => (
-          <div key={clause.id} className={`clause-card risk-${clause.riskLevel}`}>
-            <div className="clause-header">{clause.type} — {clause.riskLevel}</div>
-            <div className="clause-text">{clause.text}</div>
-          </div>
-        ))}
+        <div className="clause-list">
+          {result.clauses.map((clause) => (
+            <div key={clause.id} className="panel clause-card">
+              <div className="panel-head">
+                <span className="clause-type">{clause.type}</span>
+                <span className={`risk-badge risk-${clause.riskLevel}`}>
+                  <span className="risk-dot" />
+                  {clause.riskLevel.toLowerCase()}
+                </span>
+              </div>
+              <p className="clause-text">{clause.text}</p>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }

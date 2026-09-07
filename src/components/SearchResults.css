@@ -1,41 +1,58 @@
 .search-results {
-  margin-top: 16px;
+  padding-top: 48px;
+  padding-bottom: 96px;
 }
 
-.search-results h3 {
+.search-results-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
-  color: #1e293b;
+}
+
+.search-results-head h3 {
+  font-size: 1.0625rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .search-status {
-  color: #64748b;
-  font-style: italic;
-  margin: 24px 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  margin: 0;
 }
 
-.result-card {
-  background-color: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+.result-list {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--card);
+}
+
+.result-row {
   padding: 16px;
-  margin-bottom: 10px;
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: background-color 0.15s ease;
 }
 
-.result-card:hover {
-  border-color: #2563eb;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+.result-row + .result-row {
+  border-top: 1px solid var(--border);
+}
+
+.result-row:hover {
+  background: var(--secondary);
 }
 
 .result-preview {
-  color: #1e293b;
-  font-size: 14px;
-  line-height: 1.5;
+  color: var(--card-foreground);
+  font-size: 0.875rem;
+  line-height: 1.6;
 }
 
 .result-date {
-  color: #94a3b8;
-  font-size: 12px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
   margin-top: 8px;
 }

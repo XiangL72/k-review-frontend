@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import UploadForm from './components/UploadForm'
+import OnboardingFlow from './components/onboarding/OnboardingFlow'
 import ResultsDisplay from './components/ResultsDisplay'
 import ContractHistory from './components/ContractHistory'
 import SearchBar from './components/SearchBar'
@@ -28,6 +28,9 @@ interface Contract {
   id: number
   content: string
   createdAt: string
+  contractType: string | null
+  partyRole: string | null
+  partyRoleCustomLabel: string | null
 }
 
 function App() {
@@ -117,34 +120,55 @@ function App() {
     setSearchResults(null)
   }
 
+  const hasResult = status !== null
+
   return (
-    <div className="app">
-      <h1>K-Review</h1>
-      <p>AI-powered contract analysis platform</p>
+    <div className={`app-shell${hasResult ? ' has-result' : ''}`}>
+      <header className="nav">
+        <div className="nav-inner">
+          <div className="brand">
+            <span className="brand-mark">K</span>
+            <span className="brand-name">K-Review</span>
+          </div>
 
-      <SearchBar
-        onSearch={handleSearch}
-        onClear={handleClearSearch}
-        hasResults={searchResults !== null}
-      />
-
-      {searchResults !== null ? (
-        <SearchResults
-          results={searchResults}
-          searching={searching}
-          onSelectContract={handleSelectContract}
-        />
-      ) : (
-        <>
-          <UploadForm onJobSubmitted={handleJobSubmitted} />
-          <ResultsDisplay status={status} result={result} onReset={handleReset} />
-          <ContractHistory
-            key={refreshKey}
-            onSelectContract={handleSelectContract}
-            disabled={status === 'PENDING' || status === 'PROCESSING'}
+          <SearchBar
+            onSearch={handleSearch}
+            onClear={handleClearSearch}
+            hasResults={searchResults !== null}
           />
-        </>
-      )}
+        </div>
+      </header>
+
+      <main className="main">
+        {searchResults !== null ? (
+          <div className="container">
+            <SearchResults
+              results={searchResults}
+              searching={searching}
+              onSelectContract={handleSelectContract}
+            />
+          </div>
+        ) : (
+          <>
+            <OnboardingFlow onJobSubmitted={handleJobSubmitted} />
+            <div className="container workspace">
+              <ResultsDisplay status={status} result={result} onReset={handleReset} />
+              <ContractHistory
+                key={refreshKey}
+                onSelectContract={handleSelectContract}
+                disabled={status === 'PENDING' || status === 'PROCESSING'}
+              />
+            </div>
+          </>
+        )}
+      </main>
+
+      <footer className="footer">
+        <div className="container footer-inner">
+          <span className="footer-brand">K-Review</span>
+          <span className="muted">AI-powered contract analysis</span>
+        </div>
+      </footer>
     </div>
   )
 }

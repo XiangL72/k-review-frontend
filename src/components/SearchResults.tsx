@@ -31,21 +31,28 @@ function SearchResults({ results, searching, onSelectContract }: SearchResultsPr
 
   return (
     <div className="search-results">
-      <h3>Search results ({results.length})</h3>
-      {results.map(contract => (
-        <div
-          key={contract.id}
-          className="result-card"
-          onClick={() => onSelectContract(contract.id)}
-        >
-          <div className="result-preview">
-            {contract.content.substring(0, 200)}{contract.content.length > 200 ? '...' : ''}
+      <div className="search-results-head">
+        <h3>
+          Search results <span className="count">{results.length}</span>
+        </h3>
+      </div>
+
+      <div className="result-list">
+        {results.map(contract => (
+          <div
+            key={contract.id}
+            className="result-row"
+            onClick={() => onSelectContract(contract.id)}
+          >
+            <div className="result-preview">
+              {contract.content.substring(0, 200)}{contract.content.length > 200 ? '...' : ''}
+            </div>
+            <div className="result-date">
+              {new Date(contract.createdAt).toLocaleDateString()}
+            </div>
           </div>
-          <div className="result-date">
-            {new Date(contract.createdAt).toLocaleDateString()}
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }

@@ -27,29 +27,38 @@ function ContractHistory({ onSelectContract, disabled }: ContractHistoryProps) {
       .catch(() => setLoading(false))
   }, [])
 
-  if (loading) return <p>Loading history...</p>
-  if (contracts.length === 0) return <p className="empty">No contracts analyzed yet.</p>
+  if (loading) return <p className="history-status">Loading history…</p>
+  if (contracts.length === 0) {
+    return <p className="history-status">No contracts analyzed yet.</p>
+  }
 
   return (
     <div className="history">
-      <h3>Past Contracts</h3>
-      {contracts.map(contract => (
-        <div
-          key={contract.id}
-          className={`history-card ${disabled ? 'history-card-disabled' : ''}`}
-          onClick={() => {
-            if (disabled) return
-            onSelectContract(contract.id)
-          }}
-        >
-          <div className="history-preview">
-            {contract.content.substring(0, 120)}...
+      <div className="history-head">
+        <h3>
+          Past contracts <span className="count">{contracts.length}</span>
+        </h3>
+      </div>
+
+      <div className={`history-list ${disabled ? 'history-list-disabled' : ''}`}>
+        {contracts.map(contract => (
+          <div
+            key={contract.id}
+            className="history-row"
+            onClick={() => {
+              if (disabled) return
+              onSelectContract(contract.id)
+            }}
+          >
+            <div className="history-preview">
+              {contract.content.substring(0, 120)}...
+            </div>
+            <div className="history-date">
+              {new Date(contract.createdAt).toLocaleDateString()}
+            </div>
           </div>
-          <div className="history-date">
-            {new Date(contract.createdAt).toLocaleDateString()}
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }

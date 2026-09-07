@@ -1,47 +1,70 @@
+/* Lives inside the nav bar: a single compact row that pushes to the right edge. */
 .search-bar {
   display: flex;
+  align-items: center;
   gap: 8px;
-  margin-bottom: 24px;
+  flex: 1;
+  max-width: 460px;
+  margin-left: auto;
 }
 
 .search-bar input {
   flex: 1;
-  padding: 10px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 14px;
+  min-width: 0;
+  height: 32px;
+  padding: 0 12px;
+  background: var(--secondary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.search-bar input::placeholder {
+  color: var(--muted-foreground);
 }
 
 .search-bar input:focus {
   outline: none;
-  border-color: #2563eb;
+  background: var(--background);
+  border-color: var(--ring);
+}
+
+.search-btn,
+.clear-btn {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .search-btn {
-  padding: 10px 20px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  background: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .search-btn:hover {
-  background: #1d4ed8;
+  background: color-mix(in srgb, var(--primary) 88%, var(--background));
 }
 
 .clear-btn {
-  padding: 10px 16px;
-  background: white;
-  color: #475569;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
+  background: transparent;
+  color: var(--muted-foreground);
 }
 
 .clear-btn:hover {
-  background: #f1f5f9;
+  background: var(--secondary);
+  color: var(--foreground);
+}
+
+@media (max-width: 560px) {
+  .search-btn {
+    padding: 0 10px;
+  }
 }

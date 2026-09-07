@@ -1,15 +1,103 @@
-.app {
-  max-width: 800px;
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container);
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 0 24px;
 }
 
-.app h1 {
-  font-size: 2rem;
-  margin-bottom: 8px;
+/* --- Top navigation ----------------------------------------------------- */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--nav-height);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 80%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
 }
 
-.app > p {
-  color: #64748b;
-  margin-bottom: 24px;
+.nav-inner {
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.brand-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.main {
+  flex: 1;
+}
+
+.workspace {
+  padding-bottom: 96px;
+}
+
+/* --- Footer ------------------------------------------------------------- */
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 0;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.8125rem;
+}
+
+.footer-brand {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 560px) {
+  .nav-inner {
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .brand-name {
+    display: none;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
 }

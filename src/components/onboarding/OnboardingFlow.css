@@ -1,0 +1,390 @@
+/* The intake flow is the hero of the page: one centred column, one action per
+   screen, and no colour except the near-black primary button. */
+.onboarding {
+  min-height: calc(100vh - var(--nav-height));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 96px 24px 80px;
+  transition: min-height 0.3s ease, padding 0.3s ease;
+  overflow: hidden;
+}
+
+/* Canvas dot grid, the same construction grida.co uses: 1px dots in the border
+   token on a 16px pitch. Because it reads from --border it re-tints itself in
+   dark mode (faint white on near-black) with no second rule.
+   The radial mask fades it out toward the edges so it never collides with the
+   nav hairline or the section boundary below. */
+.onboarding::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Pushed well past --border on its own: a field this large needs weight to
+     register at all, and the ::after layer below clears it back out of the way
+     of the headline. */
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--border) 65%, var(--foreground) 35%) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 85% 75% at 50% 45%,
+    #000 35%,
+    transparent 85%
+  );
+  mask-image: radial-gradient(
+    ellipse 85% 75% at 50% 45%,
+    #000 35%,
+    transparent 85%
+  );
+  pointer-events: none;
+}
+
+/* Burns a hole in the dot field right where the type sits, so the grid can be
+   loud at the edges and the headline still lands on clean ground. */
+.onboarding::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 46% 40% at 50% 44%,
+    var(--background) 35%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+/* Once an analysis exists, the hero stops claiming a full screen so the results
+   below it sit within reach. */
+.has-result .onboarding {
+  min-height: 0;
+  padding: 64px 24px 56px;
+  border-bottom: 1px solid var(--border);
+}
+
+.onboarding-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  /* Wide enough for the display headline; the choice steps below pull
+     themselves back in to 560px so the cards don't stretch. */
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.onboarding-step {
+  width: 100%;
+  animation: onboardingStepEnter 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes onboardingStepEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-step {
+    animation: none;
+  }
+}
+
+.onboarding h1 {
+  font-size: clamp(2.75rem, 9vw, 5.5rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+  margin: 0 0 24px;
+  text-wrap: balance;
+}
+
+/* Polished-metal gloss: solid at the cap line, easing lighter toward the
+   baseline. It's a fixed gradient, so nothing pulses — the shine comes from the
+   vertical falloff catching the tall letterforms, not from animation. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .onboarding h1 {
+    background-image: linear-gradient(
+      180deg,
+      var(--foreground) 28%,
+      color-mix(in srgb, var(--foreground) 58%, var(--background)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+.onboarding h2 {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  margin: 0 0 10px;
+  text-wrap: balance;
+}
+
+.onboarding .subtext {
+  font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  max-width: 40ch;
+  margin: 0 auto 44px;
+  text-wrap: balance;
+}
+
+.onboarding .helper-note {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0 0 32px;
+}
+
+.onboarding .error {
+  color: var(--destructive);
+  margin-top: 16px;
+  font-size: 0.875rem;
+}
+
+/* Primary action — the single filled element on every step */
+.onboarding .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 34px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
+}
+
+.onboarding .btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--primary) 88%, var(--background));
+}
+
+.onboarding .btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.onboarding .btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Back control — top-left, quiet, text-style */
+.onboarding .btn-back {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  background: none;
+  border: none;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.onboarding .btn-back:hover {
+  background: var(--secondary);
+  color: var(--foreground);
+}
+
+/* Progress — a thin segmented bar rather than dots, top-centre */
+.onboarding .progress-dots {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+}
+
+.onboarding .progress-dots .dot {
+  width: 24px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: background-color 0.3s ease;
+}
+
+.onboarding .progress-dots .dot.active {
+  background: var(--foreground);
+}
+
+/* Contract type cards (step 2) */
+.onboarding .card-grid {
+  max-width: 560px;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 480px) {
+  .onboarding .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.onboarding .card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  background: var(--card);
+  color: var(--card-foreground);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.onboarding .card:hover {
+  background: var(--secondary);
+}
+
+.onboarding .card.selected {
+  border-color: var(--foreground);
+  box-shadow: 0 0 0 1px var(--foreground);
+  background: var(--card);
+}
+
+.onboarding .card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.onboarding .card-check {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.onboarding .card-desc {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+/* Party role — two large choices (step 3) */
+.onboarding .role-grid {
+  max-width: 560px;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 480px) {
+  .onboarding .role-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.onboarding .role-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 44px 16px;
+  background: var(--card);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--card-foreground);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.onboarding .role-card:hover {
+  background: var(--secondary);
+}
+
+.onboarding .role-card.selected {
+  border-color: var(--foreground);
+  box-shadow: 0 0 0 1px var(--foreground);
+  background: var(--card);
+}
+
+/* Upload dropzone (step 4) — this is a <label>, which defaults to display:inline.
+   Without an explicit block-level display, a border/width/padding on wrapping text
+   content renders as one box per line fragment instead of a single bounded box. */
+.onboarding .dropzone {
+  max-width: 560px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px dashed var(--input);
+  border-radius: var(--radius-xl);
+  padding: 56px 24px;
+  text-align: center;
+  font-size: 0.9375rem;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  margin-bottom: 28px;
+  background: var(--card);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.onboarding .dropzone:hover {
+  background: var(--secondary);
+}
+
+.onboarding .dropzone.dragging {
+  border-color: var(--foreground);
+  border-style: solid;
+  background: var(--secondary);
+}
+
+.onboarding .dropzone .filename {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  margin-top: 4px;
+  word-break: break-all;
+}
+
+/* Small pill above the hero headline */
+.onboarding .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 12px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
