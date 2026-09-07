@@ -3,7 +3,7 @@ import './OnboardingFlow.css'
 import StepWelcome from './StepWelcome'
 import StepContractType from './StepContractType'
 import StepPartyRole from './StepPartyRole'
-import StepUpload from './StepUpload'
+import StepUpload, { type InputMode } from './StepUpload'
 import { API_BASE_URL } from '../../config/api'
 
 export type ContractTypeKey = 'LEASE' | 'EMPLOYMENT' | 'SALES' | 'GENERAL'
@@ -43,6 +43,8 @@ function OnboardingFlow({ onJobSubmitted }: OnboardingFlowProps) {
   const [contractType, setContractType] = useState<ContractTypeKey | null>(null)
   const [role, setRole] = useState<RoleKey | null>(null)
   const [file, setFile] = useState<File | null>(null)
+  const [text, setText] = useState('')
+  const [mode, setMode] = useState<InputMode>('upload')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -55,7 +57,10 @@ function OnboardingFlow({ onJobSubmitted }: OnboardingFlowProps) {
   }
 
   const handleAnalyze = async () => {
-    if (!file || !contractType || !role) return
+    if (!contractType || !role) return
+    if (mode === 'upload' && !file) return
+    if (mode === 'paste' && !text.trim()) return
+
     setSubmitting(true)
     setError('')
 
@@ -63,15 +68,29 @@ function OnboardingFlow({ onJobSubmitted }: OnboardingFlowProps) {
       const backendRole = ROLE_MAP[contractType][role]
       const backendType = contractType === 'GENERAL' ? null : contractType
 
-      const formData = new FormData()
-      formData.append('file', file)
-      if (backendType) formData.append('contractType', backendType)
-      formData.append('partyRole', backendRole)
+      let submitRes: Response
+      if (mode === 'upload') {
+        const formData = new FormData()
+        formData.append('file', file as File)
+        if (backendType) formData.append('contractType', backendType)
+        formData.append('partyRole', backendRole)
 
-      const submitRes = await fetch(`${API_BASE_URL}/api/contracts/upload`, {
-        method: 'POST',
-        body: formData,
-      })
+        submitRes = await fetch(`${API_BASE_URL}/api/contracts/upload`, {
+          method: 'POST',
+          body: formData,
+        })
+      } else {
+        submitRes = await fetch(`${API_BASE_URL}/api/contracts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: text,
+            contractType: backendType,
+            partyRole: backendRole,
+          }),
+        })
+      }
+
       if (!submitRes.ok) {
         const body = await submitRes.json().catch(() => null)
         setError(body?.error ?? 'Could not submit the contract.')
@@ -124,7 +143,11 @@ function OnboardingFlow({ onJobSubmitted }: OnboardingFlowProps) {
         return (
           <StepUpload
             file={file}
+            text={text}
+            mode={mode}
+            onModeChange={setMode}
             onFileSelected={setFile}
+            onTextChange={setText}
             onAnalyze={handleAnalyze}
             submitting={submitting}
             error={error}
